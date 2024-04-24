@@ -10,3 +10,6 @@
 
 #### result
 ![alt text](Images/argocd-notify.png)
+
+
+![alt text](Images/argocd-notify-failed.png)
