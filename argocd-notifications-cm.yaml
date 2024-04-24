@@ -6,34 +6,47 @@ data:
     token: $telegram-token
   subscriptions: |
     - recipients:
-      - telegram: ${tg_chat_id}
+      - telegram:${tg_chat_id}
       triggers:
       - on-sync-failed
       - on-deployed
       - on-sync-status-unknown
-  template.app-deployed: |+
+  template.app-deployed: |
     message: |
-      ✅ CD Application {{.app.metadata.name}}
+      ✅ [{{.app.metadata.name}}]({{.context.argocdUrl}}/applications/{{.app.metadata.name}})
+      *Branch* : `{{.app.spec.source.targetRevision}}`
+      *Commit* : `{{(call .repo.GetCommitMetadata .app.status.sync.revision).Message}}`
       *Sync* : `{{.app.status.sync.status}}`
       *Health* : `{{.app.status.health.status}}`
-      *OperationState* : `{{.app.status.operationState.phase}}`
-      [{{.app.metadata.name}} URL]({{.context.argocdUrl}}/applications/{{.app.metadata.name}})
+      *Author* : {{(call .repo.GetCommitMetadata .app.status.sync.revision).Author}}
 
   template.app-sync-failed: |
     message: |
-      ❌ CD Application {{.app.metadata.name}}
-      *Status* : `{{.app.status.sync.status}}`
-      [{{.app.metadata.name}} URL]({{.context.argocdUrl}}/applications/{{.app.metadata.name}})
+      ❌ [{{.app.metadata.name}}]({{.context.argocdUrl}}/applications/{{.app.metadata.name}})
+      *Branch* : `{{.app.spec.source.targetRevision}}`
+      *Commit* : `{{(call .repo.GetCommitMetadata .app.status.sync.revision).Message}}`
+      *Sync* : `{{.app.status.sync.status}}`
+      *Health* : `{{.app.status.health.status}}`
+      *Author* : {{(call .repo.GetCommitMetadata .app.status.sync.revision).Author}}
+
   template.app-sync-status: |
     message: |
-      ❔ CD Application {{.app.metadata.name}}
-      *Status* : `{{.app.status.sync.status}}`
-      [{{.app.metadata.name}} URL]({{.context.argocdUrl}}/applications/{{.app.metadata.name}})
+      ❔ [{{.app.metadata.name}}]({{.context.argocdUrl}}/applications/{{.app.metadata.name}})
+      *Branch* : `{{.app.spec.source.targetRevision}}`
+      *Commit* : `{{(call .repo.GetCommitMetadata .app.status.sync.revision).Message}}`
+      *Sync* : `{{.app.status.sync.status}}`
+      *Health* : `{{.app.status.health.status}}`
+      *Author* : {{(call .repo.GetCommitMetadata .app.status.sync.revision).Author}}
+
   template.app-sync-succeeded: |
     message: |
       ✅ CD Application {{.app.metadata.name}}
-      *Status* : `{{.app.status.sync.status}}`
-      [{{.app.metadata.name}} URL]({{.context.argocdUrl}}/applications/{{.app.metadata.name}})
+      *Branch* : `{{.app.spec.source.targetRevision}}`
+      *Commit* : `{{(call .repo.GetCommitMetadata .app.status.sync.revision).Message}}`
+      *Sync* : `{{.app.status.sync.status}}`
+      *Health* : `{{.app.status.health.status}}`
+      *Author* : {{(call .repo.GetCommitMetadata .app.status.sync.revision).Author}}
+
   trigger.on-deployed: |
     - description: Application deployed
       send: [app-deployed] 
