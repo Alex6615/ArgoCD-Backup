@@ -1,0 +1,56 @@
+apiVersion: v1
+data:
+  context: |
+    argocdUrl: "https://argo.example.com"
+  service.telegram: |
+    token: $telegram-token
+  subscriptions: |
+    - recipients:
+      - telegram: ${tg_chat_id}
+      triggers:
+      - on-sync-failed
+      - on-deployed
+      - on-sync-status-unknown
+  template.app-deployed: |+
+    message: |
+      ✅ CD Application {{.app.metadata.name}}
+      *Sync* : `{{.app.status.sync.status}}`
+      *Health* : `{{.app.status.health.status}}`
+      *OperationState* : `{{.app.status.operationState.phase}}`
+      [{{.app.metadata.name}} URL]({{.context.argocdUrl}}/applications/{{.app.metadata.name}})
+
+  template.app-sync-failed: |
+    message: |
+      ❌ CD Application {{.app.metadata.name}}
+      *Status* : `{{.app.status.sync.status}}`
+      [{{.app.metadata.name}} URL]({{.context.argocdUrl}}/applications/{{.app.metadata.name}})
+  template.app-sync-status: |
+    message: |
+      ❔ CD Application {{.app.metadata.name}}
+      *Status* : `{{.app.status.sync.status}}`
+      [{{.app.metadata.name}} URL]({{.context.argocdUrl}}/applications/{{.app.metadata.name}})
+  template.app-sync-succeeded: |
+    message: |
+      ✅ CD Application {{.app.metadata.name}}
+      *Status* : `{{.app.status.sync.status}}`
+      [{{.app.metadata.name}} URL]({{.context.argocdUrl}}/applications/{{.app.metadata.name}})
+  trigger.on-deployed: |
+    - description: Application deployed
+      send: [app-deployed] 
+      when: app.status.health.status == 'Healthy' and app.status.sync.status != 'OutOfSync'
+  trigger.on-sync-failed: |
+    - description: Application status is 'OutOfSync'
+      send: [app-sync-failed] 
+      when: app.status.sync.status == 'OutOfSync'
+  trigger.on-sync-status-unknown: |
+    - description: Application status is 'Unknown'
+      send: [app-sync-status] 
+      when: app.status.sync.status == 'Unknown'
+  trigger.on-sync-succeeded: |
+    - description: Application status is 'Synced'
+      send: [app-sync-succeeded] 
+      when: app.status.sync.status == 'Synced'
+kind: ConfigMap
+metadata:
+  name: argocd-notifications-cm
+  namespace: argocd

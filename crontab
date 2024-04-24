@@ -1,0 +1,4 @@
+# Every Day at 00:00
+0  0    * * *   root    /home/alex.li/backup.sh
+# At minute 0
+0  *    * * *   root    /home/alex.li/cleanjob.sh
